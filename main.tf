@@ -1,33 +1,33 @@
-resource "azurerm_resource_group" "myterraformgroup" {
-  name     = "myResourceGroup"
-  location = "SouthIndia"
+resource "azurerm_resource_group" "terraformgroup" {
+  name     = "TEST-RG"
+  location = "CentralIndia"
 }
 # Create virtual network
-resource "azurerm_virtual_network" "myterraformnetwork" {
-  name                = "myVnet"
+resource "azurerm_virtual_network" "terraformnetwork" {
+  name                = "Test-Vnet"
   address_space       = ["10.0.0.0/16"]
   location            = "SouthIndia"
-  resource_group_name = azurerm_resource_group.myterraformgroup.name
+  resource_group_name = azurerm_resource_group.terraformgroup.name
 }
 # Create subnet
-resource "azurerm_subnet" "myterraformsubnet" {
-  name                 = "mySubnet"
-  resource_group_name  = azurerm_resource_group.myterraformgroup.name
-  virtual_network_name = azurerm_virtual_network.myterraformnetwork.name
+resource "azurerm_subnet" "terraformsubnet" {
+  name                 = "TestSubnet"
+  resource_group_name  = azurerm_resource_group.terraformgroup.name
+  virtual_network_name = azurerm_virtual_network.terraformnetwork.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 # Create public IPs
-resource "azurerm_public_ip" "myterraformpublicip" {
-  name                = "myPublicIP"
-  location            = "SouthIndia"
-  resource_group_name = azurerm_resource_group.myterraformgroup.name
+resource "azurerm_public_ip" "terraformpublicip" {
+  name                = "TestPublicIP"
+  location            = "CentralIndia"
+  resource_group_name = azurerm_resource_group.terraformgroup.name
   allocation_method   = "Static"
 }
 # Create Network Security Group and rule
-resource "azurerm_network_security_group" "myterraformnsg" {
-  name                = "myNetworkSecurityGroup"
-  location            = "SouthIndia"
-  resource_group_name = azurerm_resource_group.myterraformgroup.name
+resource "azurerm_network_security_group" "terraformnsg" {
+  name                = "TestNetworkSecurityGroup"
+  location            = "CentralIndia"
+  resource_group_name = azurerm_resource_group.terraformgroup.name
 
   security_rule {
     name                       = "SSH"
@@ -42,29 +42,29 @@ resource "azurerm_network_security_group" "myterraformnsg" {
   }
 }
 # Create network interface
-resource "azurerm_network_interface" "myterraformnic" {
-  name                = "myNIC"
+resource "azurerm_network_interface" "terraformnic" {
+  name                = "TestNIC"
   location            = "SouthIndia"
-  resource_group_name = azurerm_resource_group.myterraformgroup.name
+  resource_group_name = azurerm_resource_group.terraformgroup.name
 
   ip_configuration {
     name                          = "myNicConfiguration"
-    subnet_id                     = azurerm_subnet.myterraformsubnet.id
+    subnet_id                     = azurerm_subnet.terraformsubnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.myterraformpublicip.id
+    public_ip_address_id          = azurerm_public_ip.terraformpublicip.id
   }
 }
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "example" {
-  network_interface_id      = azurerm_network_interface.myterraformnic.id
-  network_security_group_id = azurerm_network_security_group.myterraformnsg.id
+  network_interface_id      = azurerm_network_interface.terraformnic.id
+  network_security_group_id = azurerm_network_security_group.terraformnsg.id
 }
 # Create virtual machine
-resource "azurerm_linux_virtual_machine" "myterraformvm" {
+resource "azurerm_linux_virtual_machine" "terraformvm" {
   name                  = "myVM"
   location              = "SouthIndia"
-  resource_group_name   = azurerm_resource_group.myterraformgroup.name
-  network_interface_ids = [azurerm_network_interface.myterraformnic.id]
+  resource_group_name   = azurerm_resource_group.terraformgroup.name
+  network_interface_ids = [azurerm_network_interface.terraformnic.id]
   size                  = "Standard_A2_v2"
 
   os_disk {

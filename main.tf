@@ -70,7 +70,7 @@ resource "azurerm_linux_virtual_machine" "myterraformvm" {
   os_disk {
     name                 = "myOsDisk"
     caching              = "ReadWrite"
-    storage_account_type = "StandardHDD_LRS"
+    storage_account_type = "Standard_LRS"
   }
 
   source_image_reference {

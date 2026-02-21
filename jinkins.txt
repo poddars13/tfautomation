@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    stages {
+		
+        stage('Git Checkout Stage') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/poddars13/tfautomation.git']])
+            }
+        }
+        stage('Terraform Init') {
+            steps {
+                bat 'terraform init'
+            }
+        }
+		stage('Authenticate with Azure') {
+			steps {
+				withCredentials([azureServicePrincipal(
+					credentialsId: 'AZURE_SP',
+					clientIdVariable: 'AZURE_CLIENT_ID',
+					clientSecretVariable: 'AZURE_CLIENT_SECRET',
+					tenantIdVariable: 'AZURE_TENANT_ID',
+					subscriptionIdVariable: 'AZURE_SUBSCRIPTION_ID'
+				)]) {
+					bat """
+						:: Use -p for the client secret instead of --certificate
+						az login --service-principal -u "%AZURE_CLIENT_ID%" -p "%AZURE_CLIENT_SECRET%" -t "%AZURE_TENANT_ID%"
+						az account set -s "%AZURE_SUBSCRIPTION_ID%"
+						az resource list
+					"""
+				}
+			}
+		}
+        stage('Terraform Plan') {
+			steps {
+				bat """
+					terraform plan ^
+					  -var "subscription_id=%AZURE_SUBSCRIPTION_ID%" ^
+					  -var "tenant_id=%AZURE_TENANT_ID%" ^
+					  -var "client_id=%AZURE_CLIENT_ID%" ^
+					  -var "client_secret=%AZURE_CLIENT_SECRET%"
+				"""
+			}
+		}
+		stage('Terraform Apply') {
+			steps {
+				bat """
+					terraform apply --auto-approve ^
+					  -var "subscription_id=%AZURE_SUBSCRIPTION_ID%" ^
+					  -var "tenant_id=%AZURE_TENANT_ID%" ^
+					  -var "client_id=%AZURE_CLIENT_ID%" ^
+					  -var "client_secret=%AZURE_CLIENT_SECRET%"
+				"""
+			}
+		}
+
+	}
+}

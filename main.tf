@@ -44,7 +44,7 @@ resource "azurerm_network_security_group" "terraformnsg" {
 # Create network interface
 resource "azurerm_network_interface" "terraformnic" {
   name                = "TestNIC"
-  location            = "SouthIndia"
+  location            = "CentralIndia"
   resource_group_name = azurerm_resource_group.terraformgroup.name
 
   ip_configuration {
@@ -61,8 +61,8 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "terraformvm" {
-  name                  = "myVM"
-  location              = "SouthIndia"
+  name                  = "TestVM"
+  location              = "CentralIndia"
   resource_group_name   = azurerm_resource_group.terraformgroup.name
   network_interface_ids = [azurerm_network_interface.terraformnic.id]
   size                  = "Standard_A2_v2"
@@ -70,7 +70,7 @@ resource "azurerm_linux_virtual_machine" "terraformvm" {
   os_disk {
     name                 = "myOsDisk"
     caching              = "ReadWrite"
-    storage_account_type = "StandardSSD_LRS"
+    storage_account_type = "StandardHDD_LRS"
   }
 
   source_image_reference {
@@ -83,5 +83,5 @@ resource "azurerm_linux_virtual_machine" "terraformvm" {
   computer_name                   = "myvm"
   admin_username                  = "azureuser"
   admin_password                  = "Windows@123456"
-  disable_password_authentication = false
+  disable_password_authentication = true
 }
